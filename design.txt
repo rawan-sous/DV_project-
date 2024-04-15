@@ -1,0 +1,64 @@
+module MA(
+  input clk, 
+  input reset, 
+  input [79:0] data_in,
+  input [7:0] compressed_in,
+  input [1:0] command,
+  output reg [7:0] compressed_out, 
+  output reg [79:0] decompressed_out,
+  output reg [1:0] response,
+  output reg [31:0] test_index,
+  output reg [79:0] test_mem
+
+);
+    // Define memory array
+  reg [79:0] mem[0:255]; // 256 indexes, each storing 80 bits
+  // Index for read and write operations
+  reg [31:0] index;
+
+  
+  always @(posedge clk) begin
+    if (reset == 1) begin
+  //     // for loop here not working  
+  //     for (int i = 0; i < 256; i++) begin
+  //       mem[i] = 80'b0; // Set each element of the memory array to zero
+  //     end
+      index = 0;
+      test_index = index[7:0]; // Slice index to match test_index width
+    end
+    
+    if (command == 0) begin // No operation
+		// do nothing
+      response = 1;
+    end
+    else if (command == 1) begin // Compression
+      // check if the data exists or not 
+      
+      // if the data is not exists in memory
+        response = 1;
+        mem[index] = data_in;
+      	test_mem = mem[index]; // just to show in simulator
+      	compressed_out = test_index[7:0];
+      	index = index + 1;
+      	test_index = index; // just for testing the index
+		
+
+    end
+    else if (command == 2) begin // Decompression
+      response = 2;
+      if (compressed_in < index[7:0]) begin
+        decompressed_out = mem[compressed_in];
+      end
+    end
+    else if (command == 3) begin // error
+      response = 3;
+    end
+  end
+
+  // Initialize index to 0
+  initial begin
+    index = 0;
+    test_index = index;
+  end
+  
+endmodule
