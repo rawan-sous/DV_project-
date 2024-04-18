@@ -1,0 +1,64 @@
+module MA(   // the clk is nessecray or not 
+    input logic clk,
+    input logic reset,
+    input logic [79:0] data_in,
+    input logic [7:0] compressed_in,
+    input logic [1:0] command,
+    output logic [7:0] compressed_out,
+    output logic [79:0] decompressed_out,
+    output logic [1:0] response,
+    output logic [31:0] test_index,
+    output logic [79:0] test_mem
+);
+
+    // Define memory array
+    logic [79:0] mem[0:255]; // 256 indexes, each storing 80 bits
+    // Index for read and write operations
+    reg [31:0] index;
+
+    always @(posedge clk) begin
+        if (reset) begin
+            for (index = 0; index < 256; index = index + 1) begin
+                mem[index] <= 'b0; // Initialize each element of the memory array to zero
+            end
+            test_index <= index[7:0]; // Slice index to match test_index width
+        end
+        
+        if (command == 0) begin // No operation
+            // do nothing
+            response <= 0;
+        end
+        else if (command == 1) begin // Compression
+            // check if the data exists or not 
+
+            // if the data does not exist in memory
+            if (index < 256) begin // Check if there is space in memory
+                response <= 1;
+                mem[index] <= data_in;
+                test_mem <= mem[index]; // just to show in simulator
+                compressed_out <= test_index[7:0];
+                index <= index + 1;
+                test_index <= index; // just for testing the index
+            end else begin
+                // Memory full
+                response <= 0;
+                // Optionally handle the memory full scenario
+            end
+        end
+        else if (command == 2) begin // Decompression
+            response <= 2;
+            if (compressed_in < index[7:0]) begin
+                decompressed_out <= mem[compressed_in];
+            end
+        end
+        else if (command == 3) begin // Error
+            response <= 3;
+        end
+    end
+
+    // Initialize index to 0
+    initial begin
+        index = 0;
+        test_index = index;
+    end
+endmodule
