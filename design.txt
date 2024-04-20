@@ -14,19 +14,23 @@ module MA(
     logic [79:0] mem[0:255]; // 256 indexes, each storing 80 bits
     // Index for read and write operations
     logic [31:0] index;
-
+	int i;
+  bit data_exists;
     always @(posedge clk) begin
 
         if (reset == 1) begin
             // Reset index and test_index to 0
-            index <= 0;
+            index = 0;
 
             // Initialize memory array to zero
-            for (int i = 0; i < 256; i = i + 1) begin
-                mem[i] <= 0; // Set each element of the memory array to zero
+            for (i = 0; i < 256; i = i + 1) begin
+              $display("mem[%d] before: %b", i, mem[i]);
+              mem[i] = 0; // Set each element of the memory array to zero              
+              $display("mem[%d] after: %b", i, mem[i]);
+
             end
           
-          test_mem <= 0;
+          	test_mem = 0;
         end else begin
             // Command processing
             case (command)
@@ -35,8 +39,8 @@ module MA(
                 end
                 1: begin // Compression
                     // Check if data_in already exists in memory
-                    bit data_exists = 0;
-                    for (int i = 0; i < index; i = i + 1) begin
+                    data_exists = 0;
+                    for (i = 0; i < index; i = i + 1) begin
                         if (mem[i] == data_in) begin
                             data_exists = 1;
                             break;
@@ -56,8 +60,8 @@ module MA(
                             // Optionally handle the memory full scenario
                         end
                     end else begin
-                        response <= 0; // Data already exists in memory
-                        // Optionally handle the data already exists scenario
+                      response <= 1; // Data already exists in memory
+                      compressed_out <=i;
                     end
                 end
                 2: begin // Decompression
@@ -70,9 +74,6 @@ module MA(
                     end
 
                 end
-//                 3: begin 				// We can remove this one
-//                     response <= 3;
-//                 end
                 default: begin 
                     response <= 3;
                 end
