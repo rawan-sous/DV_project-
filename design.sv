@@ -6,9 +6,9 @@ module MA(
     input logic [1:0] command,
     output logic [7:0] compressed_out, 
     output logic [79:0] decompressed_out,
-    output logic [1:0] response
-  //  output logic [31:0] test_index,
-  //	output logic [79:0] test_mem
+  output logic [1:0] response,
+   output logic [31:0] test_index,
+  	output logic [79:0] test_mem
 );
   logic [79:0] mem[0:255]; // 256 indexes, each storing 80 bits
   // Index for read and write operations
@@ -29,7 +29,7 @@ module MA(
 
             end
           
-          	//test_mem = 0;
+          	test_mem = 0;
         end else begin
             // Command processing
             case (command)
@@ -50,7 +50,7 @@ module MA(
                         if (index < 256) begin // Check if there is space in memory
                             response <= 1;
                             mem[index] <= data_in;
-                            //test_mem <= data_in; // Update test_mem for testing
+                            test_mem <= data_in; // Update test_mem for testing
                             compressed_out <= index[7:0]; // Assign compressed index to compressed_out
                             index <= index + 1; // Increment index
                             
@@ -83,14 +83,14 @@ module MA(
     // Initialize index to 0
     initial begin
         index = 0;
-        //test_index = 0; // Initialize test_index to 0
+        test_index = 0; // Initialize test_index to 0
 
         // Initialize memory array to zero on startup
         for (int i = 0; i < 256; i = i + 1) begin
             mem[i] = 80'b0; // Set each element of the memory array to zero
         end
     end
- // always @(index) begin // for testing the index
-  //    test_index <= index; 
-  //  end
+ always @(index) begin // for testing the index
+     test_index <= index; 
+   end
 endmodule
