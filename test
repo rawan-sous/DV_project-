@@ -17,15 +17,15 @@ module testbench;
     // Apply input values
 
     reset = 0;
-    data_in = 80'b0;
+    data_in = 80'b111;
     compressed_in = 8'b0;
     command = 2'b00;
     
 
-	#20 
-    	reset = 1;
-    #4 
-   		reset = 0;
+// 	#20 
+//     	reset = 1;
+//     #4 
+//    		reset = 0;
     
 	
     // End simulation
