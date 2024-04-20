@@ -22,8 +22,10 @@ module testbench;
     command = 2'b00;
     
 
-// 	#20 
-//     	reset = 1;
+	#20 
+    	reset = 1;
+    #4 
+   		reset = 0;
     
 	
     // End simulation
@@ -54,9 +56,9 @@ always begin
     // Repeat clock pulses forever
     forever begin
         #2
-        	clk = 1; // Set clock high
-        #2 // Delay 1 time unit
-        	clk = 0; // Set clock low
+        	clk = 1; 
+        #2 
+        	clk = 0; 
     end
 end
 endmodule
