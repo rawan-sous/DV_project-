@@ -1,0 +1,22 @@
+import uvm_pkg::*;
+
+class comp_decomp_sequence extends uvm_sequence #(comp_decomp_transaction);
+  `uvm_object_utils(comp_decomp_sequence)
+
+  function new(string name = "comp_decomp_sequence");
+    super.new(name);
+  endfunction
+
+  virtual task body();
+    comp_decomp_transaction tr;
+    `uvm_info("comp_decomp_sequence", "Starting sequence", UVM_MEDIUM)
+
+    // Loop to send multiple transactions
+    repeat (10) begin
+      tr = comp_decomp_transaction::type_id::create("tr");
+      start_item(tr);
+      assert(tr.randomize());
+      finish_item(tr);
+    end
+  endtask
+endclass
