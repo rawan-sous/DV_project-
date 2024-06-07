@@ -1,15 +1,17 @@
+// The following items used from out classes:
+// - comp_decomp_seq_item
+
 // The following items need to be edited:
-// - mySeq_item
 // - virtual task run_phase(uvm_phase phase);
 //     --- comparision logic ---    
 //   endtask : run_phase
 
 
 
-class myScoreboard extends uvm_scoreboard;
+class comp_decomp_scoreboard extends uvm_scoreboard;
 
-  `uvm_component_utils(myScoreboard)
-  uvm_analysis_imp#(mySeq_item, myScoreboard) item_collected_export;
+  `uvm_component_utils(comp_decomp_scoreboard)
+  uvm_analysis_imp#(comp_decomp_seq_item, comp_decomp_scoreboard) item_collected_export;
 
   // new - constructor
   function new (string name, uvm_component parent);
@@ -22,7 +24,7 @@ class myScoreboard extends uvm_scoreboard;
   endfunction: build_phase
   
   // write
-  virtual function void write(mem_seq_item pkt);
+  virtual function void write(comp_decomp_seq_item pkt);
     $display("SCB:: Pkt recived");
     pkt.print();
   endfunction : write
@@ -31,4 +33,4 @@ class myScoreboard extends uvm_scoreboard;
   virtual task run_phase(uvm_phase phase);
     --- comparision logic ---    
   endtask : run_phase
-endclass : mem_scoreboard
+endclass : comp_decomp_scoreboard
