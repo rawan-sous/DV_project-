@@ -1,0 +1,24 @@
+package uvm_pkg;
+
+  import uvm_pkg::*;
+
+  class comp_decomp_transaction extends uvm_sequence_item;
+    rand bit [79:0] data_in;
+    rand bit [7:0] compressed_in;
+    rand bit [1:0] command;
+    bit [7:0] compressed_out;
+    bit [79:0] decompressed_out;
+    bit [1:0] response;
+
+    function new(string name = "comp_decomp_transaction");
+      super.new(name);
+    endfunction
+
+    // Print method
+    function void display();
+      $display("data_in: %h, compressed_in: %h, command: %b, compressed_out: %h, decompressed_out: %h, response: %b", 
+                data_in, compressed_in, command, compressed_out, decompressed_out, response);
+    endfunction
+  endclass
+
+endpackage
