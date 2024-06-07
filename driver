@@ -1,0 +1,31 @@
+import uvm_pkg::*;
+
+class comp_decomp_driver extends uvm_driver #(comp_decomp_transaction);
+  `uvm_component_utils(comp_decomp_driver)
+
+  function new(string name = "comp_decomp_driver", uvm_component parent = null);
+    super.new(name, parent);
+  endfunction
+
+  virtual task run_phase(uvm_phase phase);
+    comp_decomp_transaction tr;
+
+    forever begin
+      seq_item_port.get_next_item(tr);
+      send_to_dut(tr);
+      seq_item_port.item_done();
+    end
+  endtask
+
+  task send_to_dut(comp_decomp_transaction tr);
+    @(posedge dut.clk);
+    dut.command = tr.command;
+    dut.data_in = tr.data_in;
+    dut.compressed_in = tr.compressed_in;
+    @(posedge dut.clk);
+    tr.compressed_out = dut.compressed_out;
+    tr.decompressed_out = dut.decompressed_out;
+    tr.response = dut.response;
+    tr.display();
+  endtask
+endclass
