@@ -1,31 +1,40 @@
 class comp_decomp_monitor extends uvm_monitor;
-
   `uvm_component_utils(comp_decomp_monitor)
 
   virtual compression_decompression_if dut_if;
+  transaction trans;
+  real Gobind_Coverage;
 
-  uvm_analysis_port #(transaction) analysis_port;
+  covergroup my_covergroup;
+    option.per_instance = 1;
+    compressed_out_cp: coverpoint trans.compressed_out;
+    decompressed_out_cp: coverpoint trans.decompressed_out;
+    response_cp: coverpoint trans.response;
+    cross_all: cross trans.compressed_out, trans.decompressed_out, trans.response;
+  endgroup
 
   function new(string name, uvm_component parent);
     super.new(name, parent);
-    analysis_port = new("analysis_port", this);
+    my_covergroup = new();
   endfunction
 
   function void build_phase(uvm_phase phase);
-    super.build_phase(phase);
     if (!uvm_config_db #(virtual compression_decompression_if)::get(this, "", "dut_if", dut_if))
-      `uvm_fatal("NOVIF", "Virtual interface not found")
+      `uvm_fatal("NOVIF", "Failed to get dut_if from config db");
   endfunction
 
-  task run_phase(uvm_phase phase);
-    forever begin
-      transaction trans = transaction::type_id::create("trans");
-      trans.compressed_out = dut_if.compressed_out;
-      trans.decompressed_out = dut_if.decompressed_out;
-      trans.response = dut_if.response;
-      analysis_port.write(trans);
-      #10;
-    end
+  virtual task run_phase(uvm_phase phase);
+    fork
+      forever begin
+        trans = transaction::type_id::create("trans");
+        trans.compressed_out = dut_if.compressed_out;
+        trans.decompressed_out = dut_if.decompressed_out;
+        trans.response = dut_if.response;
+        @(posedge dut_if.clk);
+        my_covergroup.sample();
+        Gobind_Coverage = my_covergroup.get_inst_coverage();
+        $display("Coverage = %0.2f %% \n", my_covergroup.get_inst_coverage());
+      end
+    join
   endtask
-
 endclass
