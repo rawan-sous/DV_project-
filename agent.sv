@@ -2,7 +2,11 @@
   // comp_decomp_driver    driver;
   // comp_decomp_sequencer sequencer;
   // comp_decomp_monitor   monitor;
-
+`include "comp_decomp_seq_item.sv"	
+`include "comp_decomp_sequencer.sv"
+`include "comp_decomp_sequence.sv"
+`include "comp_decomp_driver.sv"	
+`include "comp_decomp_monitor.sv"	
 
 
 class comp_decomp_agent extends uvm_agent;
