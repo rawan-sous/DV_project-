@@ -1,31 +1,37 @@
-import uvm_pkg::*;
+class comp_decomp_driver extends uvm_driver #(transaction);
 
-class comp_decomp_driver extends uvm_driver #(comp_decomp_transaction);
   `uvm_component_utils(comp_decomp_driver)
 
-  function new(string name = "comp_decomp_driver", uvm_component parent = null);
+  virtual compression_decompression_if dut_if;
+
+  function new(string name, uvm_component parent);
     super.new(name, parent);
   endfunction
 
-  virtual task run_phase(uvm_phase phase);
-    comp_decomp_transaction tr;
+  function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
+    if (!uvm_config_db #(virtual compression_decompression_if)::get(this, "", "dut_if", dut_if))
+      `uvm_fatal("NOVIF", "Virtual interface not found")
+  endfunction
 
+  task run_phase(uvm_phase phase);
     forever begin
-      seq_item_port.get_next_item(tr);
-      send_to_dut(tr);
+      seq_item_port.get_next_item(req);
+      drive_task(req);
       seq_item_port.item_done();
     end
   endtask
 
-  task send_to_dut(comp_decomp_transaction tr);
-    @(posedge dut.clk);
-    dut.command = tr.command;
-    dut.data_in = tr.data_in;
-    dut.compressed_in = tr.compressed_in;
-    @(posedge dut.clk);
-    tr.compressed_out = dut.compressed_out;
-    tr.decompressed_out = dut.decompressed_out;
-    tr.response = dut.response;
-    tr.display();
+  task drive_task(transaction req);
+    dut_if.clk = 0;
+    dut_if.reset = req.reset;
+    dut_if.command = req.command;
+    dut_if.data_in = req.data_in;
+    dut_if.compressed_in = req.compressed_in;
+    #10;
+    dut_if.clk = 1;
+    #10;
+    dut_if.clk = 0;
   endtask
+
 endclass
