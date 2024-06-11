@@ -1,5 +1,4 @@
 class comp_decomp_sequence extends uvm_sequence #(transaction);
-
   `uvm_object_utils(comp_decomp_sequence)
 
   function new(string name = "comp_decomp_sequence");
@@ -7,15 +6,13 @@ class comp_decomp_sequence extends uvm_sequence #(transaction);
   endfunction
 
   virtual task body();
-    `uvm_info("SEQUENCE", "Starting comp_decomp_sequence", UVM_MEDIUM)
-    
-    for (int i = 0; i < 10; i++) begin
-      transaction trans = transaction::type_id::create("trans");
-      trans.randomize();
+    transaction trans;
+    for (int i = 0; i < 256; i++) begin
+      trans = transaction::type_id::create("trans");
+      trans.data_in = $random;
+      trans.compressed_in = $random % 256;
       start_item(trans);
       finish_item(trans);
     end
-    
-    `uvm_info("SEQUENCE", "Completed comp_decomp_sequence", UVM_MEDIUM)
   endtask
 endclass
