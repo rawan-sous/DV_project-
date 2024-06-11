@@ -1,5 +1,4 @@
 class comp_decomp_driver extends uvm_driver #(transaction);
-
   `uvm_component_utils(comp_decomp_driver)
 
   virtual compression_decompression_if dut_if;
@@ -9,29 +8,18 @@ class comp_decomp_driver extends uvm_driver #(transaction);
   endfunction
 
   function void build_phase(uvm_phase phase);
-    super.build_phase(phase);
     if (!uvm_config_db #(virtual compression_decompression_if)::get(this, "", "dut_if", dut_if))
-      `uvm_fatal("NOVIF", "Virtual interface not found")
+      `uvm_fatal("NOVIF", "Failed to get dut_if from config db");
   endfunction
 
-  task run_phase(uvm_phase phase);
+  virtual task run_phase(uvm_phase phase);
     forever begin
       seq_item_port.get_next_item(req);
-      drive_task(req);
+      dut_if.data_in = req.data_in;
+      dut_if.compressed_in = req.compressed_in;
+      dut_if.command = req.command;
+      @(posedge dut_if.clk);
       seq_item_port.item_done();
     end
   endtask
-
-  task drive_task(transaction req);
-    dut_if.clk = 0;
-    dut_if.reset = req.reset;
-    dut_if.command = req.command;
-    dut_if.data_in = req.data_in;
-    dut_if.compressed_in = req.compressed_in;
-    #10;
-    dut_if.clk = 1;
-    #10;
-    dut_if.clk = 0;
-  endtask
-
 endclass
