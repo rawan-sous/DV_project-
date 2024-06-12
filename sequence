@@ -1,4 +1,9 @@
-class comp_decomp_sequence extends uvm_sequence #(transaction);
+`include "uvm_macros.svh"
+`include "uvm_pkg.sv"
+import uvm_pkg::*;
+import comp_decomp_pkg::*;
+
+class comp_decomp_sequence extends uvm_sequence #(comp_decomp_seq_item);
   `uvm_object_utils(comp_decomp_sequence)
 
   function new(string name = "comp_decomp_sequence");
@@ -6,13 +11,48 @@ class comp_decomp_sequence extends uvm_sequence #(transaction);
   endfunction
 
   virtual task body();
-    transaction trans;
+    comp_decomp_seq_item trans;
     for (int i = 0; i < 256; i++) begin
-      trans = transaction::type_id::create("trans");
+      trans = comp_decomp_seq_item::type_id::create("item");
       trans.data_in = $random;
       trans.compressed_in = $random % 256;
+      trans.command = $random % 4;
+
       start_item(trans);
       finish_item(trans);
+    end
+    `uvm_info(get_type_name(), $sformatf("------ ::SEQUENCE:: ------"), UVM_LOW)
+  endtask
+endclass
+
+class read_sequence extends uvm_sequence#(comp_decomp_seq_item);
+  `uvm_object_utils(read_sequence)
+
+  virtual task body();
+    comp_decomp_seq_item req;
+
+    // Generate read commands with corner cases
+    repeat(2) begin
+      req = comp_decomp_seq_item::type_id::create("req");
+
+      // Test corner case: read from the first index
+      req.compressed_in = 0;
+      req.command = 2; // Assuming 2 represents a read command
+      start_item(req);
+      finish_item(req);
+
+      // Test corner case: read from the last index
+      req.compressed_in = 255; // Assuming 256 locations
+      req.command = 2; // Assuming 2 represents a read command
+      start_item(req);
+      finish_item(req);
+
+      // Generate random index
+      req.compressed_in = $random % 256;
+      req.command = 2; // Assuming 2 represents a read command
+
+      start_item(req);
+      finish_item(req);
     end
   endtask
 endclass
